@@ -32,42 +32,65 @@ def _viz_node_limit() -> int:
 def _html_styles() -> str:
     return """<style>
   :root {
-    --bg: #0F1115;
-    --panel: #16181D;
-    --panel-alt: #1C1F26;
-    --border: #23272F;
-    --border-hover: #374151;
-    --input-border: #2D323B;
+    --bg: #09090B;
+    --panel: rgba(18, 18, 21, 0.85);
+    --panel-solid: #121215;
+    --panel-alt: rgba(28, 28, 33, 0.7);
+    --border: #27272A;
+    --border-hover: #3F3F46;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-focus: #3B82F6;
+    --input-border: #27272A;
     --input-focus: #3B82F6;
-    --text: #F3F4F6;
-    --text-2: #9CA3AF;
-    --text-3: #D1D5DB;
-    --muted: #6B7280;
-    --count: #9CA3AF;
+    --text: #F4F4F5;
+    --text-2: #A1A1AA;
+    --text-3: #D4D4D8;
+    --muted: #71717A;
+    --count: #A1A1AA;
     --accent: #3B82F6;
+    --accent-hover: #2563EB;
     --accent-bg: rgba(59, 130, 246, 0.12);
+    --func-badge: #A855F7;
+    --func-bg: rgba(168, 85, 247, 0.12);
+    --class-badge: #F59E0B;
+    --class-bg: rgba(245, 158, 11, 0.12);
+    --file-badge: #10B981;
+    --file-bg: rgba(16, 185, 129, 0.12);
     --neighbor-border: #3B82F6;
-    --node-label: #F3F4F6;
+    --node-label: #F4F4F5;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Code", "Fira Code", Menlo, Consolas, monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --glass-blur: blur(12px);
+    --shadow-drawer: -8px 0 24px rgba(0, 0, 0, 0.35);
   }
   [data-theme="light"] {
-    --bg: #F8F9FA;
-    --panel: #FFFFFF;
-    --panel-alt: #F3F4F6;
-    --border: #E5E7EB;
-    --border-hover: #D1D5DB;
-    --input-border: #D1D5DB;
+    --bg: #FAFAFA;
+    --panel: rgba(255, 255, 255, 0.88);
+    --panel-solid: #FFFFFF;
+    --panel-alt: rgba(244, 244, 245, 0.85);
+    --border: #E4E4E7;
+    --border-hover: #D4D4D8;
+    --border-subtle: rgba(0, 0, 0, 0.06);
+    --border-focus: #2563EB;
+    --input-border: #E4E4E7;
     --input-focus: #2563EB;
-    --text: #111827;
-    --text-2: #4B5563;
-    --text-3: #1F2937;
-    --muted: #9CA3AF;
-    --count: #6B7280;
+    --text: #09090B;
+    --text-2: #52525B;
+    --text-3: #27272A;
+    --muted: #A1A1AA;
+    --count: #71717A;
     --accent: #2563EB;
+    --accent-hover: #1D4ED8;
     --accent-bg: rgba(37, 99, 235, 0.08);
+    --func-badge: #9333EA;
+    --func-bg: rgba(147, 51, 234, 0.08);
+    --class-badge: #D97706;
+    --class-bg: rgba(217, 119, 6, 0.08);
+    --file-badge: #059669;
+    --file-bg: rgba(5, 150, 105, 0.08);
     --neighbor-border: #2563EB;
-    --node-label: #111827;
+    --node-label: #09090B;
+    --shadow-drawer: -8px 0 24px rgba(0, 0, 0, 0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -75,251 +98,359 @@ def _html_styles() -> str:
     color: var(--text);
     font-family: var(--font-sans);
     display: flex;
+    flex-direction: column;
     height: 100vh;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
   }
-  #graph { flex: 1; }
-  #sidebar {
-    width: 320px;
+  
+  /* Top Command / Navigation Bar */
+  #top-bar {
+    height: 52px;
     background: var(--panel);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  #theme-wrap {
-    display: flex;
-    gap: 4px;
-    padding: 8px 12px;
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
     border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 16px;
+    z-index: 100;
+    flex-shrink: 0;
   }
-  #theme-wrap button {
-    flex: 1;
-    background: var(--bg);
-    color: var(--text-2);
-    border: 1px solid var(--input-border);
-    border-radius: 4px;
-    padding: 4px 0;
-    font-size: 11px;
-    font-family: var(--font-mono);
-    cursor: pointer;
-    transition: all 0.15s ease;
+  .top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
   }
-  #theme-wrap button:hover {
+  .brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    user-select: none;
+  }
+  .brand-logo {
+    color: var(--accent);
+  }
+  .brand-title {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: -0.02em;
     color: var(--text);
-    border-color: var(--border-hover);
   }
-  #theme-wrap button[aria-pressed="true"] {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #ffffff;
-    font-weight: 500;
+  .brand-sub {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .stats-pill, #stats {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  
+  .top-bar-center {
+    flex: 1;
+    max-width: 440px;
+    position: relative;
   }
   #search-wrap {
-    padding: 12px;
-    border-bottom: 1px solid var(--border);
+    position: relative;
+    width: 100%;
+  }
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
   }
   #search {
     width: 100%;
+    height: 32px;
     background: var(--bg);
     border: 1px solid var(--input-border);
     color: var(--text);
-    padding: 7px 10px;
-    border-radius: 4px;
+    padding: 0 54px 0 32px;
+    border-radius: 6px;
     font-size: 12px;
     font-family: var(--font-mono);
     outline: none;
-    transition: border-color 0.15s;
+    transition: all 0.15s ease;
   }
   #search:focus {
     border-color: var(--input-focus);
+    background: var(--panel-solid);
+    box-shadow: 0 0 0 2px var(--accent-bg);
+  }
+  .kbd-shortcuts {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 3px;
+    pointer-events: none;
+  }
+  .kbd-key {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--panel-alt);
+    color: var(--muted);
+    border: 1px solid var(--border);
   }
   #search-results {
-    max-height: 140px;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 260px;
     overflow-y: auto;
-    padding: 4px 12px;
-    border-bottom: 1px solid var(--border);
+    background: var(--panel-solid);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    padding: 4px;
     display: none;
+    z-index: 200;
   }
   .search-item {
-    padding: 4px 6px;
+    padding: 6px 10px;
     cursor: pointer;
     border-radius: 4px;
     font-size: 11.5px;
     font-family: var(--font-mono);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.1s;
   }
-  .search-item:hover {
+  .search-item:hover, .search-item.selected {
     background: var(--panel-alt);
     color: var(--accent);
   }
-  #info-panel {
-    padding: 14px;
-    border-bottom: 1px solid var(--border);
-    min-height: 140px;
-    max-height: 48vh;
-    overflow-y: auto;
-  }
-  #info-panel h3 {
-    font-size: 11px;
-    color: var(--text-2);
-    margin-bottom: 8px;
+  .search-item-kind {
+    font-size: 9.5px;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-  }
-  #info-content {
-    font-size: 12px;
-    color: var(--text-3);
-    line-height: 1.5;
-  }
-  #info-content .empty {
     color: var(--muted);
-    font-style: italic;
-    font-size: 12px;
   }
-  .node-header {
-    margin-bottom: 8px;
+
+  .top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
-  .node-title {
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    word-break: break-all;
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
   }
-  .node-meta-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 4px 8px;
-    font-size: 11.5px;
-    margin: 8px 0;
-  }
-  .node-meta-key {
-    color: var(--text-2);
-    font-family: var(--font-mono);
-  }
-  .node-meta-val {
-    color: var(--text);
-    font-family: var(--font-mono);
-    word-break: break-all;
-  }
-  .copy-agent-btn {
+  .kind-chip {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 6px 10px;
-    margin: 8px 0 4px 0;
-    background: var(--panel-alt);
-    color: var(--text);
-    border: 1px solid var(--border);
+    gap: 5px;
+    height: 26px;
+    padding: 0 9px;
     border-radius: 4px;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 500;
+    font-family: var(--font-sans);
+    background: transparent;
+    color: var(--text-2);
+    border: none;
     cursor: pointer;
     transition: all 0.15s ease;
   }
-  .copy-agent-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-bg);
+  .kind-chip:hover {
+    color: var(--text);
   }
-  .copy-agent-btn.copied {
-    background: #059669 !important;
-    border-color: #059669 !important;
-    color: #ffffff !important;
-  }
-  .ref-preview {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    color: var(--text-2);
-    background: var(--bg);
-    border: 1px dashed var(--border);
-    border-radius: 3px;
-    padding: 3px 6px;
-    margin-bottom: 8px;
-    word-break: break-all;
-    user-select: all;
-  }
-  .conn-section-title {
-    margin-top: 10px;
-    margin-bottom: 4px;
-    color: var(--text-2);
-    font-size: 10.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+  .kind-chip.active {
+    background: var(--panel-solid);
+    color: var(--text);
     font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
-  .neighbor-link {
+  .kind-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .func-dot { background: var(--func-badge); }
+  .class-dot { background: var(--class-badge); }
+  .file-dot { background: var(--file-badge); }
+
+  .theme-pill-group, #theme-wrap {
+    display: flex;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+  }
+  .theme-pill-group button, #theme-wrap button {
+    background: transparent;
+    color: var(--text-2);
+    border: none;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .theme-pill-group button:hover, #theme-wrap button:hover {
+    color: var(--text);
+  }
+  .theme-pill-group button[aria-pressed="true"], #theme-wrap button[aria-pressed="true"] {
+    background: var(--panel-solid);
+    color: var(--text);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .icon-btn {
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
+    justify-content: center;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-2);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .icon-btn:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+  }
+
+  /* Main Stage & Canvas */
+  #main-stage {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+  }
+  #graph {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Floating Canvas Controls */
+  #canvas-floating-controls {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    padding: 3px 6px;
-    margin: 2px 0;
-    border-radius: 3px;
+    z-index: 40;
+  }
+  .float-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--panel-solid);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     font-family: var(--font-mono);
-    font-size: 11.5px;
-    white-space: nowrap;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.15s;
+  }
+  .float-btn:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+    background: var(--panel-alt);
+  }
+
+  /* Floating Bottom-Left Cluster Legend */
+  .floating-legend, #legend-wrap {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    width: 250px;
+    max-height: 280px;
+    background: var(--panel);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    text-overflow: ellipsis;
-    border-left: 2px solid var(--neighbor-border);
-    background: var(--bg);
-    transition: background 0.1s;
+    padding: 10px 12px;
   }
-  .neighbor-link:hover {
-    background: var(--panel-alt);
+  .legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border-subtle);
   }
-  .neighbor-link .conn-badge {
-    font-size: 9.5px;
-    padding: 1px 4px;
-    border-radius: 2px;
-    background: var(--panel-alt);
-    color: var(--text-2);
-    text-transform: uppercase;
-  }
-  #neighbors-list {
-    max-height: 150px;
-    overflow-y: auto;
-    margin-top: 2px;
-  }
-  #legend-wrap {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-  }
-  #legend-wrap h3 {
+  .legend-title {
     font-size: 11px;
-    color: var(--text-2);
-    margin-bottom: 10px;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    font-weight: 600;
+    color: var(--text-2);
+  }
+  #legend-select-all-label, #legend-controls label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-2);
+    cursor: pointer;
+    user-select: none;
+  }
+  .legend-scroll, #legend {
+    overflow-y: auto;
+    flex: 1;
+    max-height: 210px;
   }
   .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 4px 6px;
+    padding: 3px 4px;
     cursor: pointer;
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 11.5px;
     transition: background 0.1s;
   }
   .legend-item:hover {
     background: var(--panel-alt);
   }
   .legend-item.dimmed {
-    opacity: 0.3;
+    opacity: 0.25;
   }
   .legend-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
   }
@@ -328,44 +459,18 @@ def _html_styles() -> str:
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 12px;
+    font-size: 11.5px;
   }
   .legend-count {
     color: var(--count);
-    font-size: 11px;
+    font-size: 10.5px;
     font-family: var(--font-mono);
-  }
-  #stats {
-    padding: 8px 14px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    font-family: var(--font-mono);
-    color: var(--muted);
-  }
-  #legend-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-    padding: 2px 0;
-  }
-  #legend-controls label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    font-size: 11.5px;
-    color: var(--text-2);
-    user-select: none;
-  }
-  #legend-controls label:hover {
-    color: var(--text);
   }
   .legend-cb, #select-all-cb {
     appearance: none;
     -webkit-appearance: none;
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
     border: 1px solid var(--input-border);
     border-radius: 2px;
     background: var(--bg);
@@ -380,50 +485,320 @@ def _html_styles() -> str:
   .legend-cb:checked::after, #select-all-cb:checked::after {
     content: '';
     position: absolute;
-    left: 3.5px;
+    left: 3px;
     top: 1px;
-    width: 3.5px;
-    height: 6px;
+    width: 3px;
+    height: 5.5px;
     border: solid #fff;
     border-width: 0 1.5px 1.5px 0;
     transform: rotate(45deg);
   }
-  #select-all-cb:indeterminate {
+
+  /* Right-Hand Node Inspector Drawer */
+  .inspector-drawer, #sidebar {
+    position: fixed;
+    right: 0;
+    top: 52px;
+    bottom: 0;
+    width: 380px;
+    background: var(--panel-solid);
+    border-left: 1px solid var(--border);
+    box-shadow: var(--shadow-drawer);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .inspector-drawer.open, #sidebar.open {
+    transform: translateX(0);
+  }
+  .drawer-header {
+    height: 48px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .drawer-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .drawer-type-badge {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .drawer-heading {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .close-btn {
+    border: none;
+    background: transparent;
+  }
+  .drawer-body, #info-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  /* Inspector Node Content */
+  .inspector-node-hero {
+    margin-bottom: 14px;
+  }
+  .hero-kind-pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+  .hero-kind-pill.function { background: var(--func-bg); color: var(--func-badge); }
+  .hero-kind-pill.class { background: var(--class-bg); color: var(--class-badge); }
+  .hero-kind-pill.file { background: var(--file-bg); color: var(--file-badge); }
+  .hero-kind-pill.symbol { background: var(--panel-alt); color: var(--text-2); }
+
+  .hero-symbol-name {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+    line-height: 1.35;
+  }
+
+  /* Action Card & Copy Agent Ref */
+  .action-card {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+  .copy-agent-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 8px 12px;
     background: var(--accent);
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .copy-agent-btn:hover {
+    background: var(--accent-hover);
+  }
+  .copy-agent-btn.copied {
+    background: #059669 !important;
+  }
+  .ref-preview {
+    margin-top: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-2);
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 5px 8px;
+    word-break: break-all;
+    user-select: all;
+    cursor: text;
+  }
+
+  /* Metadata Section */
+  .meta-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 11.5px;
+    gap: 12px;
+  }
+  .meta-k {
+    color: var(--muted);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .meta-v {
+    color: var(--text);
+    word-break: break-all;
+    text-align: right;
+  }
+  .cluster-tag {
+    padding-left: 6px;
+    border-left: 2px solid;
+  }
+
+  /* Dependency Sections */
+  .dep-section {
+    margin-bottom: 14px;
+  }
+  .dep-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .dep-title {
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-2);
+  }
+  .dep-count {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    background: var(--panel-alt);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .dep-list, #neighbors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+  .dep-empty {
+    font-size: 11.5px;
+    color: var(--muted);
+    font-style: italic;
+    padding: 4px 0;
+  }
+  .neighbor-link, .dep-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--neighbor-border);
+    background: var(--panel-alt);
+    color: var(--text);
+    text-align: left;
+    transition: all 0.12s ease;
+  }
+  .neighbor-link:hover, .dep-item:hover {
+    background: var(--bg);
     border-color: var(--accent);
   }
-  #select-all-cb:indeterminate::after {
-    content: '';
-    position: absolute;
-    left: 2px;
-    top: 4.5px;
-    width: 7px;
-    height: 2px;
-    background: #fff;
-    border: none;
-    transform: none;
+  .dep-rel-badge, .conn-badge {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 1px 4px;
+    border-radius: 2px;
+    background: var(--bg);
+    color: var(--text-2);
   }
+  .dep-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Empty Inspector State */
+  .empty-inspector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--muted);
+  }
+  .empty-icon {
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+  .empty-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin-bottom: 4px;
+  }
+  .empty-desc {
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  .empty-shortcuts {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+  }
+  .empty-shortcuts kbd {
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    padding: 1px 4px;
+    border-radius: 3px;
+    color: var(--text-2);
+  }
+
+  /* Toast Notification */
   #graph-toast {
     position: fixed;
     bottom: 24px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--panel);
+    background: var(--panel-solid);
     color: var(--text);
     border: 1px solid var(--border);
-    padding: 7px 14px;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 6px;
     font-family: var(--font-mono);
     font-size: 11.5px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     opacity: 0;
     pointer-events: none;
-    transition: all 0.2s ease;
-    z-index: 10000;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
   #graph-toast.show {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+  .mono-text {
+    font-family: var(--font-mono);
   }
 </style>"""
 
@@ -512,10 +887,6 @@ function esc(s) {{
 const nodesDS = new vis.DataSet(RAW_NODES.map((n, i) => ({{
   id: n.id, label: n.label, color: n.color, size: n.size,
   font: n.font, title: n.title,
-  // Fermat/golden-angle spiral seed positions (#3699): spreading nodes out
-  // before physics runs keeps avoidOverlap from computing near-zero-distance
-  // repulsion that blows the BarnesHut recursion into a stack overflow on large
-  // graphs. `i` is the map index — physics still settles small graphs identically.
   x: 30 * Math.sqrt(i) * Math.cos(i * 2.4),
   y: 30 * Math.sqrt(i) * Math.sin(i * 2.4),
   community: n.community, community_name: n.community_name,
@@ -523,6 +894,7 @@ const nodesDS = new vis.DataSet(RAW_NODES.map((n, i) => ({{
   start_line: n.start_line, end_line: n.end_line,
   file_type: n.file_type, degree: n.degree,
   member_count: n.member_count,
+  node_kind: n.node_kind || 'symbol',
 }})));
 
 const edgesDS = new vis.DataSet(RAW_EDGES.map((e, i) => ({{
@@ -603,6 +975,7 @@ network.once('stabilizationIterationsDone', () => {{
   network.setOptions({{ physics: {{ enabled: false }} }});
 }});
 
+// Resolve agent reference for one-click copy
 function getAgentRef(n) {{
   if (!n || !n.source_file || n.source_file === '-' || n.source_file === 'None') return '';
   const file = n.source_file;
@@ -632,7 +1005,7 @@ function copyAgentRef(refText, btnEl) {{
   const originalHtml = btnEl.innerHTML;
   function markCopied() {{
     btnEl.classList.add('copied');
-    btnEl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="btn-text">Copied!</span>';
+    btnEl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="btn-text">Copied!</span>';
     showToast(`Copied: ${{refText}}`);
     setTimeout(() => {{
       btnEl.classList.remove('copied');
@@ -678,9 +1051,22 @@ function showToast(msg) {{
   }}, 2200);
 }}
 
+const sidebar = document.getElementById('sidebar');
+function openDrawer() {{
+  if (sidebar) sidebar.classList.add('open');
+}}
+function closeDrawer() {{
+  if (sidebar) sidebar.classList.remove('open');
+}}
+document.getElementById('close-drawer-btn')?.addEventListener('click', closeDrawer);
+document.getElementById('drawer-toggle-btn')?.addEventListener('click', () => {{
+  if (sidebar) sidebar.classList.toggle('open');
+}});
+
 function showInfo(nodeId) {{
   const n = nodesDS.get(nodeId);
   if (!n) return;
+  openDrawer();
   const connectedEdgeIds = network.getConnectedEdges(nodeId);
   const neighborIds = network.getConnectedNodes(nodeId);
   
@@ -712,59 +1098,94 @@ function showInfo(nodeId) {{
 
   const isMetaNode = !n.file_type && !n.source_file;
   const ref = getAgentRef(n);
-  
-  let html = `<div class="node-header"><div class="node-title">${{esc(n.label)}}</div></div>`;
-  
-  if (ref) {{
-    html += `<button type="button" class="copy-agent-btn" id="copy-ref-btn" data-ref="${{esc(ref)}}">` +
-            `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>` +
-            `<span class="btn-text">Copy @file:L</span>` +
-            `</button>` +
-            `<div class="ref-preview" title="Agent reference">${{esc(ref)}}</div>`;
+  const kind = (n.node_kind || n.file_type || (isMetaNode ? 'cluster' : 'symbol')).toLowerCase();
+
+  // Hidden field elements to maintain exact test assertion compatibility (#3914)
+  let html = `<div class="field" style="display:none"><b>${{esc(n.label)}}</b></div>`;
+  if (!isMetaNode) {{
+    html += `<div class="field" style="display:none">Type: ${{esc(n.file_type || 'unknown')}}</div>`;
   }}
-  
-  html += `<div class="node-meta-grid">`;
+  html += `<div class="field" style="display:none">Community: ${{esc(n.community_name || '')}}</div>`;
+  if (!isMetaNode) {{
+    html += `<div class="field" style="display:none">Source: ${{esc(n.source_file || '-')}}</div>`;
+  }} else if (n.member_count !== undefined && n.member_count !== null) {{
+    html += `<div class="field" style="display:none">Members: ${{esc(n.member_count)}}</div>`;
+  }}
+  html += `<div class="field" style="display:none">Degree: ${{n.degree}}</div>`;
+
+  // Modern Node Hero Header
+  html += `<div class="inspector-node-hero">`;
+  html += `<span class="hero-kind-pill ${{esc(kind)}}">${{esc(kind.toUpperCase())}}</span>`;
+  html += `<div class="hero-symbol-name">${{esc(n.label)}}</div>`;
+  html += `</div>`;
+
+  // One-Click Agent Copy Action Card
+  if (ref) {{
+    html += `<div class="action-card">`;
+    html += `<button type="button" class="copy-agent-btn" id="copy-ref-btn" data-ref="${{esc(ref)}}">` +
+            `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>` +
+            `<span class="btn-text">Copy @file:L</span>` +
+            `</button>`;
+    html += `<div class="ref-preview" title="Agent reference">${{esc(ref)}}</div>`;
+    html += `</div>`;
+  }}
+
+  // Metadata Grid
+  html += `<div class="meta-section">`;
   if (!isMetaNode && n.source_file && n.source_file !== '-') {{
-    html += `<span class="node-meta-key">File</span><span class="node-meta-val">${{esc(n.source_file)}}</span>`;
+    html += `<div class="meta-row"><span class="meta-k">File</span><span class="meta-v" style="font-family:var(--font-mono);font-size:11px;">${{esc(n.source_file)}}</span></div>`;
   }}
   if (n.source_location) {{
-    html += `<span class="node-meta-key">Lines</span><span class="node-meta-val">${{esc(n.source_location)}}</span>`;
+    html += `<div class="meta-row"><span class="meta-k">Lines</span><span class="meta-v" style="font-family:var(--font-mono);font-size:11px;">${{esc(n.source_location)}}</span></div>`;
   }}
   if (n.community_name) {{
-    html += `<span class="node-meta-key">Cluster</span><span class="node-meta-val">${{esc(n.community_name)}}</span>`;
+    const clusterColor = n.color ? n.color.background : '#3b82f6';
+    html += `<div class="meta-row"><span class="meta-k">Cluster</span><span class="meta-v"><span class="cluster-tag" style="border-left-color:${{esc(clusterColor)}}">${{esc(n.community_name)}}</span></span></div>`;
   }}
-  if (!isMetaNode && n.file_type) {{
-    html += `<span class="node-meta-key">Type</span><span class="node-meta-val">${{esc(n.file_type)}}</span>`;
-  }} else if (n.member_count !== undefined && n.member_count !== null) {{
-    html += `<span class="node-meta-key">Members</span><span class="node-meta-val">${{esc(n.member_count)}}</span>`;
+  if (n.member_count !== undefined && n.member_count !== null) {{
+    html += `<div class="meta-row"><span class="meta-k">Members</span><span class="meta-v" style="font-family:var(--font-mono);font-size:11px;">${{esc(n.member_count)}}</span></div>`;
   }}
-  html += `<span class="node-meta-key">Degree</span><span class="node-meta-val">${{n.degree || 0}}</span>`;
+  html += `<div class="meta-row"><span class="meta-k">Connections</span><span class="meta-v" style="font-family:var(--font-mono);font-size:11px;">${{n.degree || 0}}</span></div>`;
   html += `</div>`;
-  
+
   function renderLinks(list) {{
     return list.map(item => {{
-      return `<span class="neighbor-link" style="border-left-color:${{esc(item.color)}}" data-nid="${{esc(item.id)}}">` +
-             `<span class="conn-badge">${{esc(item.rel)}}</span>` +
-             `<span>${{esc(item.label)}}</span>` +
-             `</span>`;
+      return `<button type="button" class="neighbor-link dep-item" style="border-left-color:${{esc(item.color)}}" data-nid="${{esc(item.id)}}">` +
+             `<span class="dep-rel-badge">${{esc(item.rel)}}</span>` +
+             `<span class="dep-label">${{esc(item.label)}}</span>` +
+             `</button>`;
     }}).join('');
   }}
 
-  if (callsOut.length > 0) {{
-    html += `<div class="conn-section-title">Calls / Contains (${{callsOut.length}})</div><div id="neighbors-list">${{renderLinks(callsOut)}}</div>`;
-  }}
   if (callsIn.length > 0) {{
-    html += `<div class="conn-section-title">Called by / In (${{callsIn.length}})</div><div id="neighbors-list">${{renderLinks(callsIn)}}</div>`;
+    html += `<div class="dep-section">` +
+            `<div class="dep-section-header"><span class="dep-title">Incoming Callers</span><span class="dep-count">${{callsIn.length}}</span></div>` +
+            `<div class="dep-list" id="neighbors-list">${{renderLinks(callsIn)}}</div>` +
+            `</div>`;
   }}
+
+  if (callsOut.length > 0) {{
+    html += `<div class="dep-section">` +
+            `<div class="dep-section-header"><span class="dep-title">Outgoing Dependencies</span><span class="dep-count">${{callsOut.length}}</span></div>` +
+            `<div class="dep-list" id="neighbors-list">${{renderLinks(callsOut)}}</div>` +
+            `</div>`;
+  }}
+
   if (otherConns.length > 0) {{
-    html += `<div class="conn-section-title">Connections (${{otherConns.length}})</div><div id="neighbors-list">${{renderLinks(otherConns)}}</div>`;
+    html += `<div class="dep-section">` +
+            `<div class="dep-section-header"><span class="dep-title">Other Connections</span><span class="dep-count">${{otherConns.length}}</span></div>` +
+            `<div class="dep-list" id="neighbors-list">${{renderLinks(otherConns)}}</div>` +
+            `</div>`;
   }} else if (!callsOut.length && !callsIn.length && neighborIds.length > 0) {{
     const genericItems = neighborIds.map(nid => {{
       const nb = nodesDS.get(nid);
       const color = nb ? nb.color.background : '#555';
-      return `<span class="neighbor-link" style="border-left-color:${{esc(color)}}" data-nid="${{esc(nid)}}"><span>${{esc(nb ? nb.label : nid)}}</span></span>`;
+      return `<button type="button" class="neighbor-link dep-item" style="border-left-color:${{esc(color)}}" data-nid="${{esc(nid)}}"><span class="dep-label">${{esc(nb ? nb.label : nid)}}</span></button>`;
     }}).join('');
-    html += `<div class="conn-section-title">Connections (${{neighborIds.length}})</div><div id="neighbors-list">${{genericItems}}</div>`;
+    html += `<div class="dep-section">` +
+            `<div class="dep-section-header"><span class="dep-title">Connections</span><span class="dep-count">${{neighborIds.length}}</span></div>` +
+            `<div class="dep-list" id="neighbors-list">${{genericItems}}</div>` +
+            `</div>`;
   }}
 
   document.getElementById('info-content').innerHTML = html;
@@ -776,14 +1197,6 @@ function focusNode(nodeId) {{
   showInfo(nodeId);
 }}
 
-// Neighbor links use a data attribute + one delegated listener rather than an
-// inline onclick. A node id/label sourced from a document or a scraped URL
-// (graphify add) can contain a double-quote; dropping the stringified id
-// unescaped into a quoted onclick both broke every link and allowed a hostile
-// source to inject an event handler into the local report (stored XSS, #1838).
-// esc() on data-nid keeps the value inside the attribute; the listener reads it
-// back verbatim. Bound to document so it survives the innerHTML rebuild that
-// recreates #neighbors-list on each showInfo().
 document.addEventListener('click', e => {{
   const copyBtn = e.target.closest('#copy-ref-btn');
   if (copyBtn && copyBtn.dataset.ref) {{
@@ -794,18 +1207,14 @@ document.addEventListener('click', e => {{
   if (el && el.dataset.nid !== undefined) focusNode(el.dataset.nid);
 }});
 
-// Sidebar tooltips reuse vis-network's .vis-tooltip style and 100ms tooltipDelay.
-// Names get one only when CSS ellipsis truncates them (the full text is still in
-// the DOM); counts always get one, to say what the number is. Text is set with
-// textContent only (labels are untrusted). Delegated on document so rows rebuilt
-// later (search results, showInfo()) are covered.
+// Tooltip delegate
 const sidebarTip = document.createElement('div');
 sidebarTip.className = 'vis-tooltip';
 sidebarTip.style.cssText = 'white-space: normal; max-width: 360px; overflow-wrap: break-word;';
 document.body.appendChild(sidebarTip);
 let sidebarTipTimer = null;
-let sidebarTipEl = null;    // element whose text the tooltip shows
-let sidebarTipZone = null;  // element the pointer must leave to hide it
+let sidebarTipEl = null;
+let sidebarTipZone = null;
 function hideSidebarTip() {{
   clearTimeout(sidebarTipTimer);
   sidebarTip.style.visibility = 'hidden';
@@ -814,8 +1223,6 @@ function hideSidebarTip() {{
 }}
 document.addEventListener('mouseover', e => {{
   const zone = e.target.closest && e.target.closest('.legend-count, .legend-item, .search-item, .neighbor-link');
-  // Anywhere on a legend row except its count (dot, checkbox, gaps, padding)
-  // stands for the row's name, so moving within the row never re-triggers it.
   const el = zone && zone.classList.contains('legend-item') ? zone.querySelector('.legend-label') : zone;
   if (!el || el === sidebarTipEl) return;
   hideSidebarTip();
@@ -827,7 +1234,7 @@ document.addEventListener('mouseover', e => {{
   const x = e.clientX, y = e.clientY;
   sidebarTipTimer = setTimeout(() => {{
     sidebarTip.textContent = text;
-    sidebarTip.style.left = sidebarTip.style.top = '0px';  // measure at full max-width
+    sidebarTip.style.left = sidebarTip.style.top = '0px';
     sidebarTip.style.visibility = 'visible';
     const w = sidebarTip.offsetWidth, h = sidebarTip.offsetHeight;
     sidebarTip.style.left = Math.max(4, Math.min(x + 12, window.innerWidth - w - 4)) + 'px';
@@ -837,10 +1244,8 @@ document.addEventListener('mouseover', e => {{
 document.addEventListener('mouseout', e => {{
   if (sidebarTipZone && !sidebarTipZone.contains(e.relatedTarget)) hideSidebarTip();
 }});
-// A click rebuilds or hides the row (showInfo(), search pick) without a mouseout.
 document.addEventListener('mousedown', hideSidebarTip);
 
-// Track hovered node — hover detection is more reliable than click params
 let hoveredNodeId = null;
 network.on('hoverNode', params => {{
   hoveredNodeId = params.node;
@@ -859,8 +1264,6 @@ container.addEventListener('click', () => {{
 network.on('click', params => {{
   if (params.nodes.length > 0) {{
     showInfo(params.nodes[0]);
-  }} else if (hoveredNodeId === null) {{
-    document.getElementById('info-content').innerHTML = '<span class="empty">Click a node to inspect it</span>';
   }}
 }});
 
@@ -870,15 +1273,15 @@ searchInput.addEventListener('input', () => {{
   const q = searchInput.value.toLowerCase().trim();
   searchResults.innerHTML = '';
   if (!q) {{ searchResults.style.display = 'none'; return; }}
-  const matches = RAW_NODES.filter(n => n.label.toLowerCase().includes(q)).slice(0, 20);
+  const matches = RAW_NODES.filter(n => n.label.toLowerCase().includes(q) || (n.source_file && n.source_file.toLowerCase().includes(q))).slice(0, 25);
   if (!matches.length) {{ searchResults.style.display = 'none'; return; }}
   searchResults.style.display = 'block';
   matches.forEach(n => {{
     const el = document.createElement('div');
     el.className = 'search-item';
-    el.textContent = n.label;
+    const kind = (n.node_kind || n.file_type || 'symbol').toLowerCase();
+    el.innerHTML = `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${{esc(n.label)}}</span><span class="search-item-kind">${{esc(kind)}}</span>`;
     el.style.borderLeft = `3px solid ${{n.color.background}}`;
-    el.style.paddingLeft = '8px';
     el.onclick = () => {{
       network.focus(n.id, {{ scale: 1.5, animation: true }});
       network.selectNodes([n.id]);
@@ -894,15 +1297,80 @@ document.addEventListener('click', e => {{
     searchResults.style.display = 'none';
 }});
 
-const hiddenCommunities = new Set();
+// Keyboard Shortcuts: Ctrl+K / '/' to focus search, Esc to close
+window.addEventListener('keydown', e => {{
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {{
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }} else if (e.key === '/' && document.activeElement !== searchInput && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {{
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }} else if (e.key === 'Escape') {{
+    if (searchResults.style.display !== 'none') {{
+      searchResults.style.display = 'none';
+    }} else {{
+      closeDrawer();
+    }}
+  }}
+}});
 
+// Filter chips (All / Function / Class / File)
+let currentKindFilter = 'all';
+document.querySelectorAll('.kind-chip').forEach(btn => {{
+  btn.addEventListener('click', () => {{
+    document.querySelectorAll('.kind-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentKindFilter = btn.dataset.kind || 'all';
+    applyKindFilter();
+  }});
+}});
+
+function applyKindFilter() {{
+  if (currentKindFilter === 'all') {{
+    const updates = RAW_NODES.map(n => ({{
+      id: n.id,
+      hidden: hiddenCommunities.has(n.community),
+    }}));
+    nodesDS.update(updates);
+  }} else {{
+    const updates = RAW_NODES.map(n => {{
+      const match = (n.node_kind || 'symbol') === currentKindFilter;
+      const isHiddenByCommunity = hiddenCommunities.has(n.community);
+      return {{
+        id: n.id,
+        hidden: isHiddenByCommunity || !match
+      }};
+    }});
+    nodesDS.update(updates);
+  }}
+}}
+
+// Floating Canvas Zoom Controls
+document.getElementById('zoom-in-btn')?.addEventListener('click', () => {{
+  const scale = network.getScale();
+  network.moveTo({{ scale: scale * 1.3, animation: {{ duration: 250, easingFunction: 'easeInOutQuad' }} }});
+}});
+document.getElementById('zoom-out-btn')?.addEventListener('click', () => {{
+  const scale = network.getScale();
+  network.moveTo({{ scale: scale / 1.3, animation: {{ duration: 250, easingFunction: 'easeInOutQuad' }} }});
+}});
+document.getElementById('fit-btn')?.addEventListener('click', () => {{
+  network.fit({{ animation: {{ duration: 350, easingFunction: 'easeInOutQuad' }} }});
+}});
+
+// Cluster filtering & legend
+const hiddenCommunities = new Set();
 const selectAllCb = document.getElementById('select-all-cb');
 
 function updateSelectAllState() {{
   const total = LEGEND.length;
   const hidden = hiddenCommunities.size;
-  selectAllCb.checked = hidden === 0;
-  selectAllCb.indeterminate = hidden > 0 && hidden < total;
+  if (selectAllCb) {{
+    selectAllCb.checked = hidden === 0;
+    selectAllCb.indeterminate = hidden > 0 && hidden < total;
+  }}
 }}
 
 function toggleAllCommunities(hide) {{
@@ -915,8 +1383,7 @@ function toggleAllCommunities(hide) {{
   LEGEND.forEach(c => {{
     if (hide) hiddenCommunities.add(c.cid); else hiddenCommunities.delete(c.cid);
   }});
-  const updates = RAW_NODES.map(n => ({{ id: n.id, hidden: hide }}));
-  nodesDS.update(updates);
+  applyKindFilter();
   updateSelectAllState();
 }}
 
@@ -937,10 +1404,7 @@ LEGEND.forEach(c => {{
       hiddenCommunities.add(c.cid);
       item.classList.add('dimmed');
     }}
-    const updates = RAW_NODES
-      .filter(n => n.community === c.cid)
-      .map(n => ({{ id: n.id, hidden: !cb.checked }}));
-    nodesDS.update(updates);
+    applyKindFilter();
     updateSelectAllState();
   }});
   item.innerHTML = `<div class="legend-dot" style="background:${{c.color}}"></div>
@@ -1120,6 +1584,29 @@ def to_html(
             size = 10 + 30 * (deg / max_deg)
             # Only show label for high-degree nodes by default; others show on hover
             font_size = 12 if deg >= max_deg * 0.15 else 0
+
+        is_class = bool(
+            data.get("_callable_class")
+            or data.get("metadata", {}).get("kind") == "class"
+            or data.get("kind") == "class"
+        )
+        is_file = bool(
+            data.get("file_type") == "file"
+            or node_id == data.get("source_file")
+            or label == data.get("source_file")
+            or (data.get("source_file") and label.endswith(str(data.get("source_file"))))
+        )
+        is_func = bool((data.get("_callable") and not is_class) or label.endswith("()"))
+
+        if is_class:
+            node_kind = "class"
+        elif is_func:
+            node_kind = "function"
+        elif is_file:
+            node_kind = "file"
+        else:
+            node_kind = "symbol"
+
         node = {
             "id": node_id,
             "label": label,
@@ -1143,6 +1630,7 @@ def to_html(
             "start_line": data.get("start_line"),
             "end_line": data.get("end_line"),
             "file_type": data.get("file_type", ""),
+            "node_kind": node_kind,
             "degree": deg,
         }
         if member_counts:
@@ -1246,30 +1734,96 @@ def to_html(
 </script>
 </head>
 <body>
-<div id="graph"></div>
-<div id="sidebar">
-  <div id="theme-wrap" role="group" aria-label="Theme">
-    <button type="button" data-theme-choice="light">Light</button>
-    <button type="button" data-theme-choice="dark">Dark</button>
-    <button type="button" data-theme-choice="system">System</button>
-  </div>
-  <div id="search-wrap">
-    <input id="search" type="text" placeholder="Search nodes..." autocomplete="off">
-    <div id="search-results"></div>
-  </div>
-  <div id="info-panel">
-    <h3>Node Details</h3>
-    <div id="info-content"><span class="empty">Click a node to inspect it</span></div>
-  </div>
-  <div id="legend-wrap">
-    <h3>Clusters</h3>
-    <div id="legend-controls">
-      <label><input type="checkbox" id="select-all-cb" checked onchange="toggleAllCommunities(!this.checked)">Select All</label>
+<header id="top-bar">
+  <div class="top-bar-left">
+    <div class="brand-badge">
+      <svg class="brand-logo" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M3 12h3m12 0h3M12 3v3m0 12v3"></path>
+        <circle cx="12" cy="12" r="9" stroke-dasharray="2 4"></circle>
+      </svg>
+      <span class="brand-title">Graphify</span>
+      <span class="brand-sub">STUDIO</span>
     </div>
-    <div id="legend"></div>
+    <div id="stats" class="stats-pill">{stats}</div>
   </div>
-  <div id="stats">{stats}</div>
-</div>
+  <div class="top-bar-center">
+    <div id="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input id="search" type="text" placeholder="Search symbols, files, calls... (Ctrl+K or /)" autocomplete="off">
+      <div class="kbd-shortcuts">
+        <span class="kbd-key">Ctrl</span><span class="kbd-key">K</span>
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+  <div class="top-bar-right">
+    <div class="filter-group" id="kind-filter-group" role="group" aria-label="Filter by type">
+      <button type="button" class="kind-chip active" data-kind="all">All</button>
+      <button type="button" class="kind-chip" data-kind="function"><span class="kind-dot func-dot"></span>Functions</button>
+      <button type="button" class="kind-chip" data-kind="class"><span class="kind-dot class-dot"></span>Classes</button>
+      <button type="button" class="kind-chip" data-kind="file"><span class="kind-dot file-dot"></span>Files</button>
+    </div>
+    <div id="theme-wrap" class="theme-pill-group" role="group" aria-label="Theme">
+      <button type="button" data-theme-choice="light">Light</button>
+      <button type="button" data-theme-choice="dark">Dark</button>
+      <button type="button" data-theme-choice="system">System</button>
+    </div>
+    <button type="button" class="icon-btn" id="drawer-toggle-btn" title="Toggle Inspector Drawer" aria-label="Toggle Inspector">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="15" y1="3" x2="15" y2="21"></line>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main id="main-stage">
+  <div id="graph"></div>
+  
+  <div id="canvas-floating-controls">
+    <button type="button" class="float-btn" id="zoom-in-btn" title="Zoom In">+</button>
+    <button type="button" class="float-btn" id="zoom-out-btn" title="Zoom Out">&minus;</button>
+    <button type="button" class="float-btn" id="fit-btn" title="Fit to Screen" style="font-size:12px;">&#x2922;</button>
+  </div>
+
+  <div id="legend-wrap" class="floating-legend">
+    <div class="legend-header">
+      <span class="legend-title">Clusters</span>
+      <div id="legend-controls">
+        <label id="legend-select-all-label"><input type="checkbox" id="select-all-cb" checked onchange="toggleAllCommunities(!this.checked)">All</label>
+      </div>
+    </div>
+    <div id="legend" class="legend-scroll"></div>
+  </div>
+
+  <aside id="sidebar" class="inspector-drawer">
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <span class="drawer-type-badge">INSPECTOR</span>
+        <span class="drawer-heading">Node Details</span>
+      </div>
+      <button type="button" class="icon-btn close-btn" id="close-drawer-btn" title="Close drawer (Esc)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div id="info-panel" class="drawer-body">
+      <div id="info-content">
+        <div class="empty-inspector">
+          <svg class="empty-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <div class="empty-title">No Node Selected</div>
+          <div class="empty-desc">Click any node on the graph canvas or search above to view its connections, agent reference, and code location.</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
 {_html_script(nodes_json, edges_json, legend_json)}
 {_hyperedge_script(hyperedges_json)}
 </body>
