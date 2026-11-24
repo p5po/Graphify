@@ -32,55 +32,399 @@ def _viz_node_limit() -> int:
 def _html_styles() -> str:
     return """<style>
   :root {
-    --bg: #0f0f1a; --panel: #1a1a2e; --border: #2a2a4e; --input-border: #3a3a5e;
-    --text: #e0e0e0; --text-2: #aaa; --text-3: #ccc; --muted: #555; --count: #666;
-    --neighbor-border: #333; --node-label: #ffffff;
+    --bg: #0F1115;
+    --panel: #16181D;
+    --panel-alt: #1C1F26;
+    --border: #23272F;
+    --border-hover: #374151;
+    --input-border: #2D323B;
+    --input-focus: #3B82F6;
+    --text: #F3F4F6;
+    --text-2: #9CA3AF;
+    --text-3: #D1D5DB;
+    --muted: #6B7280;
+    --count: #9CA3AF;
+    --accent: #3B82F6;
+    --accent-bg: rgba(59, 130, 246, 0.12);
+    --neighbor-border: #3B82F6;
+    --node-label: #F3F4F6;
+    --font-mono: ui-monospace, "JetBrains Mono", "Cascadia Code", "Fira Code", Menlo, Consolas, monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   [data-theme="light"] {
-    --bg: #ffffff; --panel: #f8f9fa; --border: #d9dee5; --input-border: #c3cad4;
-    --text: #222222; --text-2: #666666; --text-3: #333333; --muted: #888888; --count: #777777;
-    --neighbor-border: #ccc; --node-label: #222222;
+    --bg: #F8F9FA;
+    --panel: #FFFFFF;
+    --panel-alt: #F3F4F6;
+    --border: #E5E7EB;
+    --border-hover: #D1D5DB;
+    --input-border: #D1D5DB;
+    --input-focus: #2563EB;
+    --text: #111827;
+    --text-2: #4B5563;
+    --text-3: #1F2937;
+    --muted: #9CA3AF;
+    --count: #6B7280;
+    --accent: #2563EB;
+    --accent-bg: rgba(37, 99, 235, 0.08);
+    --neighbor-border: #2563EB;
+    --node-label: #111827;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; display: flex; height: 100vh; overflow: hidden; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
   #graph { flex: 1; }
-  #sidebar { width: 280px; background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-  #search-wrap { padding: 12px; border-bottom: 1px solid var(--border); }
-  #search { width: 100%; background: var(--bg); border: 1px solid var(--input-border); color: var(--text); padding: 7px 10px; border-radius: 6px; font-size: 13px; outline: none; }
-  #search:focus { border-color: #4E79A7; }
-  #search-results { max-height: 140px; overflow-y: auto; padding: 4px 12px; border-bottom: 1px solid var(--border); display: none; }
-  .search-item { padding: 4px 6px; cursor: pointer; border-radius: 4px; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .search-item:hover { background: var(--border); }
-  #info-panel { padding: 14px; border-bottom: 1px solid var(--border); min-height: 140px; }
-  #info-panel h3 { font-size: 13px; color: var(--text-2); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-  #info-content { font-size: 13px; color: var(--text-3); line-height: 1.6; }
-  #info-content .field { margin-bottom: 5px; }
-  #info-content .field b { color: var(--text); }
-  #info-content .empty { color: var(--muted); font-style: italic; }
-  .neighbor-link { display: block; padding: 2px 6px; margin: 2px 0; border-radius: 3px; cursor: pointer; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-left: 3px solid var(--neighbor-border); }
-  .neighbor-link:hover { background: var(--border); }
-  #neighbors-list { max-height: 160px; overflow-y: auto; margin-top: 4px; }
-  #legend-wrap { flex: 1; overflow-y: auto; padding: 12px; }
-  #legend-wrap h3 { font-size: 13px; color: var(--text-2); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
-  .legend-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; cursor: pointer; border-radius: 4px; font-size: 12px; }
-  .legend-item:hover { background: var(--border); padding-left: 4px; }
-  .legend-item.dimmed { opacity: 0.35; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-  .legend-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .legend-count { color: var(--count); font-size: 11px; }
-  #stats { padding: 10px 14px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); }
-  #legend-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 4px 0; }
-  #legend-controls label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: var(--text-2); user-select: none; }
-  #legend-controls label:hover { color: var(--text); }
-  .legend-cb, #select-all-cb { appearance: none; -webkit-appearance: none; width: 14px; height: 14px; border: 1.5px solid var(--input-border); border-radius: 3px; background: var(--bg); cursor: pointer; position: relative; flex-shrink: 0; }
-  .legend-cb:checked, #select-all-cb:checked { background: #4E79A7; border-color: #4E79A7; }
-  .legend-cb:checked::after, #select-all-cb:checked::after { content: ''; position: absolute; left: 3.5px; top: 1px; width: 4px; height: 7px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
-  #select-all-cb:indeterminate { background: #4E79A7; border-color: #4E79A7; }
-  #select-all-cb:indeterminate::after { content: ''; position: absolute; left: 2px; top: 5px; width: 8px; height: 2px; background: #fff; border: none; transform: none; }
-  #theme-wrap { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-  #theme-wrap button { flex: 1; background: var(--bg); color: var(--text-2); border: 1px solid var(--input-border); border-radius: 4px; padding: 3px 0; font-size: 11px; cursor: pointer; }
-  #theme-wrap button:hover { color: var(--text); }
-  #theme-wrap button[aria-pressed="true"] { background: #4E79A7; border-color: #4E79A7; color: #fff; }
+  #sidebar {
+    width: 320px;
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #theme-wrap {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  #theme-wrap button {
+    flex: 1;
+    background: var(--bg);
+    color: var(--text-2);
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    padding: 4px 0;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  #theme-wrap button:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+  }
+  #theme-wrap button[aria-pressed="true"] {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+    font-weight: 500;
+  }
+  #search-wrap {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  #search {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--input-border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  #search:focus {
+    border-color: var(--input-focus);
+  }
+  #search-results {
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 4px 12px;
+    border-bottom: 1px solid var(--border);
+    display: none;
+  }
+  .search-item {
+    padding: 4px 6px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .search-item:hover {
+    background: var(--panel-alt);
+    color: var(--accent);
+  }
+  #info-panel {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+    min-height: 140px;
+    max-height: 48vh;
+    overflow-y: auto;
+  }
+  #info-panel h3 {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  #info-content {
+    font-size: 12px;
+    color: var(--text-3);
+    line-height: 1.5;
+  }
+  #info-content .empty {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12px;
+  }
+  .node-header {
+    margin-bottom: 8px;
+  }
+  .node-title {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+  }
+  .node-meta-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 8px;
+    font-size: 11.5px;
+    margin: 8px 0;
+  }
+  .node-meta-key {
+    color: var(--text-2);
+    font-family: var(--font-mono);
+  }
+  .node-meta-val {
+    color: var(--text);
+    font-family: var(--font-mono);
+    word-break: break-all;
+  }
+  .copy-agent-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 6px 10px;
+    margin: 8px 0 4px 0;
+    background: var(--panel-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .copy-agent-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-bg);
+  }
+  .copy-agent-btn.copied {
+    background: #059669 !important;
+    border-color: #059669 !important;
+    color: #ffffff !important;
+  }
+  .ref-preview {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--text-2);
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 3px;
+    padding: 3px 6px;
+    margin-bottom: 8px;
+    word-break: break-all;
+    user-select: all;
+  }
+  .conn-section-title {
+    margin-top: 10px;
+    margin-bottom: 4px;
+    color: var(--text-2);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .neighbor-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 6px;
+    margin: 2px 0;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-left: 2px solid var(--neighbor-border);
+    background: var(--bg);
+    transition: background 0.1s;
+  }
+  .neighbor-link:hover {
+    background: var(--panel-alt);
+  }
+  .neighbor-link .conn-badge {
+    font-size: 9.5px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    background: var(--panel-alt);
+    color: var(--text-2);
+    text-transform: uppercase;
+  }
+  #neighbors-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 2px;
+  }
+  #legend-wrap {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+  }
+  #legend-wrap h3 {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 12px;
+    transition: background 0.1s;
+  }
+  .legend-item:hover {
+    background: var(--panel-alt);
+  }
+  .legend-item.dimmed {
+    opacity: 0.3;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .legend-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .legend-count {
+    color: var(--count);
+    font-size: 11px;
+    font-family: var(--font-mono);
+  }
+  #stats {
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+  }
+  #legend-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 2px 0;
+  }
+  #legend-controls label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 11.5px;
+    color: var(--text-2);
+    user-select: none;
+  }
+  #legend-controls label:hover {
+    color: var(--text);
+  }
+  .legend-cb, #select-all-cb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 13px;
+    height: 13px;
+    border: 1px solid var(--input-border);
+    border-radius: 2px;
+    background: var(--bg);
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .legend-cb:checked, #select-all-cb:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .legend-cb:checked::after, #select-all-cb:checked::after {
+    content: '';
+    position: absolute;
+    left: 3.5px;
+    top: 1px;
+    width: 3.5px;
+    height: 6px;
+    border: solid #fff;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+  }
+  #select-all-cb:indeterminate {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  #select-all-cb:indeterminate::after {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 4.5px;
+    width: 7px;
+    height: 2px;
+    background: #fff;
+    border: none;
+    transform: none;
+  }
+  #graph-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 7px 14px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 10000;
+  }
+  #graph-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 </style>"""
 
 def _hyperedge_script(hyperedges_json: str) -> str:
@@ -175,13 +519,16 @@ const nodesDS = new vis.DataSet(RAW_NODES.map((n, i) => ({{
   x: 30 * Math.sqrt(i) * Math.cos(i * 2.4),
   y: 30 * Math.sqrt(i) * Math.sin(i * 2.4),
   community: n.community, community_name: n.community_name,
-  source_file: n.source_file, file_type: n.file_type, degree: n.degree,
+  source_file: n.source_file, source_location: n.source_location,
+  start_line: n.start_line, end_line: n.end_line,
+  file_type: n.file_type, degree: n.degree,
   member_count: n.member_count,
 }})));
 
 const edgesDS = new vis.DataSet(RAW_EDGES.map((e, i) => ({{
   id: i, from: e.from, to: e.to,
   label: '',
+  rel: e.label,
   title: e.title,
   dashes: e.dashes,
   width: e.width,
@@ -256,30 +603,170 @@ network.once('stabilizationIterationsDone', () => {{
   network.setOptions({{ physics: {{ enabled: false }} }});
 }});
 
+function getAgentRef(n) {{
+  if (!n || !n.source_file || n.source_file === '-' || n.source_file === 'None') return '';
+  const file = n.source_file;
+  const isPureFile = (n.id === file || n.label === file || n.file_type === 'file' || (!n.source_location && !n.start_line));
+  if (isPureFile && (!n.source_location || (n.source_location === 'L1' && n.label.endsWith(file)))) {{
+    return `@${{file}}`;
+  }}
+  let start = n.start_line;
+  let end = n.end_line;
+  if ((start === undefined || start === null) && n.source_location) {{
+    const raw = String(n.source_location).trim().replace(/^L/i, '');
+    const m = raw.match(/^(\\d+)(?:[-:]L?(\\d+))?$/i);
+    if (m) {{
+      start = parseInt(m[1], 10);
+      end = m[2] ? parseInt(m[2], 10) : start;
+    }}
+  }}
+  if (start !== undefined && start !== null) {{
+    const endLine = (end !== undefined && end !== null) ? end : start;
+    return `@${{file}}:L${{start}}-L${{endLine}}`;
+  }}
+  return `@${{file}}`;
+}}
+
+function copyAgentRef(refText, btnEl) {{
+  if (!refText) return;
+  const originalHtml = btnEl.innerHTML;
+  function markCopied() {{
+    btnEl.classList.add('copied');
+    btnEl.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"></polyline></svg><span class="btn-text">Copied!</span>';
+    showToast(`Copied: ${{refText}}`);
+    setTimeout(() => {{
+      btnEl.classList.remove('copied');
+      btnEl.innerHTML = originalHtml;
+    }}, 2000);
+  }}
+  if (navigator.clipboard && navigator.clipboard.writeText) {{
+    navigator.clipboard.writeText(refText).then(markCopied).catch(() => {{
+      fallbackCopy(refText, markCopied);
+    }});
+  }} else {{
+    fallbackCopy(refText, markCopied);
+  }}
+}}
+
+function fallbackCopy(text, onSuccess) {{
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {{
+    document.execCommand('copy');
+    if (onSuccess) onSuccess();
+  }} catch(e) {{}}
+  document.body.removeChild(ta);
+}}
+
+function showToast(msg) {{
+  let toast = document.getElementById('graph-toast');
+  if (!toast) {{
+    toast = document.createElement('div');
+    toast.id = 'graph-toast';
+    document.body.appendChild(toast);
+  }}
+  toast.textContent = msg;
+  toast.className = 'show';
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => {{
+    toast.className = '';
+  }}, 2200);
+}}
+
 function showInfo(nodeId) {{
   const n = nodesDS.get(nodeId);
   if (!n) return;
+  const connectedEdgeIds = network.getConnectedEdges(nodeId);
   const neighborIds = network.getConnectedNodes(nodeId);
-  const neighborItems = neighborIds.map(nid => {{
-    const nb = nodesDS.get(nid);
-    const color = nb ? nb.color.background : '#555';
-    return `<span class="neighbor-link" style="border-left-color:${{esc(color)}}" data-nid="${{esc(nid)}}">${{esc(nb ? nb.label : nid)}}</span>`;
-  }}).join('');
+  
+  const callsOut = [];
+  const callsIn = [];
+  const otherConns = [];
+  
+  connectedEdgeIds.forEach(eid => {{
+    const edge = edgesDS.get(eid);
+    if (!edge) return;
+    const isOut = edge.from === nodeId;
+    const otherId = isOut ? edge.to : edge.from;
+    const otherNode = nodesDS.get(otherId);
+    if (!otherNode) return;
+    const rel = edge.rel || edge.label || 'connects';
+    const item = {{
+      id: otherId,
+      label: otherNode.label,
+      rel: rel,
+      color: otherNode.color ? otherNode.color.background : '#555',
+    }};
+    if (rel === 'calls' || rel === 'contains' || rel === 'imports' || rel === 'method') {{
+      if (isOut) callsOut.push(item);
+      else callsIn.push(item);
+    }} else {{
+      otherConns.push(item);
+    }}
+  }});
+
   const isMetaNode = !n.file_type && !n.source_file;
-  let html = `<div class="field"><b>${{esc(n.label)}}</b></div>`;
-  if (!isMetaNode) {{
-    html += `<div class="field">Type: ${{esc(n.file_type || 'unknown')}}</div>`;
+  const ref = getAgentRef(n);
+  
+  let html = `<div class="node-header"><div class="node-title">${{esc(n.label)}}</div></div>`;
+  
+  if (ref) {{
+    html += `<button type="button" class="copy-agent-btn" id="copy-ref-btn" data-ref="${{esc(ref)}}">` +
+            `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:5px;flex-shrink:0;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>` +
+            `<span class="btn-text">Copy @file:L</span>` +
+            `</button>` +
+            `<div class="ref-preview" title="Agent reference">${{esc(ref)}}</div>`;
   }}
-  html += `<div class="field">Community: ${{esc(n.community_name || '')}}</div>`;
-  if (!isMetaNode) {{
-    html += `<div class="field">Source: ${{esc(n.source_file || '-')}}</div>`;
+  
+  html += `<div class="node-meta-grid">`;
+  if (!isMetaNode && n.source_file && n.source_file !== '-') {{
+    html += `<span class="node-meta-key">File</span><span class="node-meta-val">${{esc(n.source_file)}}</span>`;
+  }}
+  if (n.source_location) {{
+    html += `<span class="node-meta-key">Lines</span><span class="node-meta-val">${{esc(n.source_location)}}</span>`;
+  }}
+  if (n.community_name) {{
+    html += `<span class="node-meta-key">Cluster</span><span class="node-meta-val">${{esc(n.community_name)}}</span>`;
+  }}
+  if (!isMetaNode && n.file_type) {{
+    html += `<span class="node-meta-key">Type</span><span class="node-meta-val">${{esc(n.file_type)}}</span>`;
   }} else if (n.member_count !== undefined && n.member_count !== null) {{
-    html += `<div class="field">Members: ${{esc(n.member_count)}}</div>`;
+    html += `<span class="node-meta-key">Members</span><span class="node-meta-val">${{esc(n.member_count)}}</span>`;
   }}
-  html += `<div class="field">Degree: ${{n.degree}}</div>`;
-  if (neighborIds.length) {{
-    html += `<div class="field" style="margin-top:8px;color:var(--text-2);font-size:11px">Neighbors (${{neighborIds.length}})</div><div id="neighbors-list">${{neighborItems}}</div>`;
+  html += `<span class="node-meta-key">Degree</span><span class="node-meta-val">${{n.degree || 0}}</span>`;
+  html += `</div>`;
+  
+  function renderLinks(list) {{
+    return list.map(item => {{
+      return `<span class="neighbor-link" style="border-left-color:${{esc(item.color)}}" data-nid="${{esc(item.id)}}">` +
+             `<span class="conn-badge">${{esc(item.rel)}}</span>` +
+             `<span>${{esc(item.label)}}</span>` +
+             `</span>`;
+    }}).join('');
   }}
+
+  if (callsOut.length > 0) {{
+    html += `<div class="conn-section-title">Calls / Contains (${{callsOut.length}})</div><div id="neighbors-list">${{renderLinks(callsOut)}}</div>`;
+  }}
+  if (callsIn.length > 0) {{
+    html += `<div class="conn-section-title">Called by / In (${{callsIn.length}})</div><div id="neighbors-list">${{renderLinks(callsIn)}}</div>`;
+  }}
+  if (otherConns.length > 0) {{
+    html += `<div class="conn-section-title">Connections (${{otherConns.length}})</div><div id="neighbors-list">${{renderLinks(otherConns)}}</div>`;
+  }} else if (!callsOut.length && !callsIn.length && neighborIds.length > 0) {{
+    const genericItems = neighborIds.map(nid => {{
+      const nb = nodesDS.get(nid);
+      const color = nb ? nb.color.background : '#555';
+      return `<span class="neighbor-link" style="border-left-color:${{esc(color)}}" data-nid="${{esc(nid)}}"><span>${{esc(nb ? nb.label : nid)}}</span></span>`;
+    }}).join('');
+    html += `<div class="conn-section-title">Connections (${{neighborIds.length}})</div><div id="neighbors-list">${{genericItems}}</div>`;
+  }}
+
   document.getElementById('info-content').innerHTML = html;
 }}
 
@@ -298,6 +785,11 @@ function focusNode(nodeId) {{
 // back verbatim. Bound to document so it survives the innerHTML rebuild that
 // recreates #neighbors-list on each showInfo().
 document.addEventListener('click', e => {{
+  const copyBtn = e.target.closest('#copy-ref-btn');
+  if (copyBtn && copyBtn.dataset.ref) {{
+    copyAgentRef(copyBtn.dataset.ref, copyBtn);
+    return;
+  }}
   const el = e.target.closest('.neighbor-link');
   if (el && el.dataset.nid !== undefined) focusNode(el.dataset.nid);
 }});
@@ -647,6 +1139,9 @@ def to_html(
             "community": cid,
             "community_name": sanitize_label((community_labels or {}).get(cid, f"Community {cid}")),
             "source_file": sanitize_label(str(data.get("source_file") or "")),
+            "source_location": sanitize_label(str(data.get("source_location") or "")),
+            "start_line": data.get("start_line"),
+            "end_line": data.get("end_line"),
             "file_type": data.get("file_type", ""),
             "degree": deg,
         }
@@ -763,11 +1258,11 @@ def to_html(
     <div id="search-results"></div>
   </div>
   <div id="info-panel">
-    <h3>Node Info</h3>
+    <h3>Node Details</h3>
     <div id="info-content"><span class="empty">Click a node to inspect it</span></div>
   </div>
   <div id="legend-wrap">
-    <h3>Communities</h3>
+    <h3>Clusters</h3>
     <div id="legend-controls">
       <label><input type="checkbox" id="select-all-cb" checked onchange="toggleAllCommunities(!this.checked)">Select All</label>
     </div>
